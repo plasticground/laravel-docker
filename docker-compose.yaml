@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  php:
+    build:
+      args:
+        user: dev
+        uid: 1000
+      context: dockerfiles
+      dockerfile: php.Dockerfile
+    image: php8.2
+    working_dir: /var/www/
+    volumes:
+      - ./src:/var/www
+      - ./data/env/app/.env:/var/www/.env
+      - ./data/storage:/var/www/storage
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - 8000:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d/
+      - ./src:/var/www
+      - ./storage:/var/www/storage
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - 33306:3306
+    volumes:
+      - ./data/db/mysql:/var/lib/mysql
+    env_file:
+      - ./data/env/db/.env
+
+  redis:
+    image: redis:alpine3.19
+    volumes:
+      - ./data/db/redis:/data
+
